@@ -39,21 +39,58 @@ struct epoll_event ev;
 struct epoll_event events[MAX_EVENTS];
 
 int epfd;
-int sockfd;
 char hello[PKT_SIZE];
 char buffer[PKT_SIZE];
 int status = 0;
 int succ = 0;
+
+struct dispatch_t {
+    int sockfd;
+    int error_code;
+    struct buffer_t read_buf;
+    struct buffer_t write_buf;
+};
+int my_connect_addr(struct sockaddr_in serv_addr, struct dispatch_t **dispatch) {
+    int sockfd = ff_socket(AF_INET, SOCK_STREAM, 0);
+
+    int on = 1;
+    ff_ioctl(sockfd, FIONBIO, &on);
+
+    *dispatch = malloc(sizeof(struct dispatch_t));
+    create_dispatch(*dispatch, sockfd, 8192);
+
+    struct epoll_event ev;
+    ev.data.ptr = *dispatch;
+    ev.events = EPOLLOUT;
+    ff_epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &ev);
+
+    int ret = ff_connect(sockfd, (struct linux_sockaddr *) &serv_addr, sizeof(serv_addr));
+
+    if (ret == 0 || errno == 115) {
+        errno = 0;
+        return sockfd;
+    } else
+        return ret;
+}
+
+struct sockaddr_in get_address(char *addr, int port) {
+    printf("Creating address from %s:%d\n", addr, port);
+    struct sockaddr_in serv_addr;
+    bzero(&serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = inet_addr(addr);
+    serv_addr.sin_port = htons(port);
+    return serv_addr;
+}
+
 int loop(void *arg) {
-    int i;
+
     int nevents = ff_epoll_wait(epfd, events, MAX_EVENTS, 0);
     struct epoll_event event;
-    for (i = 0; i < nevents; ++i) {
+    for (int i = 0; i < nevents; ++i) {
         if (events[i].events & EPOLLOUT) {
             if (status++ == 0)
                 printf("connection established, fd %d\n", events[i].data.fd);
-            // else
-            //     printf("epoll %d times, fd %d\n", status, events[i].data.fd);
 
             int n = strlen(hello);
             int nsend = ff_write(events[i].data.fd, hello, PKT_SIZE);
@@ -69,7 +106,6 @@ int loop(void *arg) {
             // printf("events modified!\n");
         }
         if (events[i].events & EPOLLIN) {
-            printf("sockfd: %d\n", sockfd);
             printf("receiving data... fd %d\n", events[i].data.fd);
             printf("read success %d times\n", succ);
 
@@ -96,39 +132,9 @@ int loop(void *arg) {
 int main(int argc, char *argv[]) {
 
     ff_init(argc, argv);
-    sockfd = ff_socket(AF_INET, SOCK_STREAM, 0);
-    printf("client pktsize: %d\n", PKT_SIZE);
-
-    if (sockfd < 0) {
-        printf("ff_socket failed\n");
-        exit(1);
-    }
-
-    int on = 1;
-    ff_ioctl(sockfd, FIONBIO, &on);
-
     memset(hello, '*', PKT_SIZE * sizeof(char));
-    struct sockaddr_in serv_addr;
-    bzero(&serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(3000);
-    serv_addr.sin_addr.s_addr = inet_addr("192.168.60.132");
 
-    assert((epfd = ff_epoll_create(0)) > 0);
-    ev.data.fd = sockfd;
-    ev.events = EPOLLOUT;
-    ff_epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &ev);
-    fprintf(stderr, "epoll fd: %d\n", epfd);
-
-    printf("connecting...\n");
-    int ret = ff_connect(sockfd, (struct linux_sockaddr *) &serv_addr, sizeof(serv_addr));
-    if (ret < 0) {
-        perror("ff_connect");
-//        exit(-1);
-    }
-
-
-    gettimeofday(&t1, NULL);
+    my_connect_addr(get_address("192.168.60.132", 3000));
     ff_run(loop, NULL);
     return 0;
 }

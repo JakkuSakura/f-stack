@@ -11,7 +11,6 @@
 #include <assert.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
-#include <semaphore.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -56,7 +55,7 @@ int my_connect_addr(struct sockaddr_in serv_addr, struct dispatch_t **dispatch) 
 
     struct epoll_event ev;
     ev.data.ptr = *dispatch;
-    ev.events = EPOLLOUT;
+    ev.events = EPOLLOUT | EPOLLIN;
     ff_epoll_ctl(epfd, EPOLL_CTL_ADD, sockfd, &ev);
 
     int ret = ff_connect(sockfd, (struct linux_sockaddr *) &serv_addr, sizeof(serv_addr));
@@ -123,20 +122,16 @@ int loop(void *arg) {
         control->done = 1;
     }
 
-    int i;
     int nevents = ff_epoll_wait(epfd, events, MAX_EVENTS, 0);
     struct epoll_event event;
-    for (i = 0; i < nevents; ++i) {
+    for (int i = 0; i < nevents; ++i) {
         struct dispatch_t *dispatch = (struct dispatch_t *) events[i].data.ptr;
-        // TODO adjust this
+
         if (events[i].events & EPOLLOUT) {
             char *buf;
             int len;
             buffer_allocate_readable(&dispatch->write_buf, &buf, &len);
             if (len > 0) {
-                printf("Trying to write %d\n", len);
-                printf("State %d %d %d\n", dispatch->write_buf.read, dispatch->write_buf.write,
-                       dispatch->write_buf.size);
                 int nsend = ff_write(dispatch->sockfd, buf, len);
                 if (nsend > 0) {
                     dispatch->write_buf.read += nsend;
@@ -159,12 +154,11 @@ int loop(void *arg) {
             }
             if ((nrecv == -1 && errno == EAGAIN) || nrecv == 0)
                 continue;
-            printf("Read %d\n", nrecv);
-            dispatch->read_buf.read += nrecv;
+            dispatch->read_buf.write += nrecv;
         }
-        exit(0);
 
     }
+
 }
 
 
@@ -186,9 +180,14 @@ void *worker(void *_) {
         char *begin;
         int len;
         buffer_allocate_readable(&control->dispatch->read_buf, &begin, &len);
-        printf("Read %d\n", len);
-        int n = write(STDOUT_FILENO, begin, len);
-        sleep(1);
+        write(STDOUT_FILENO, begin, len);
+        control->dispatch->read_buf.read += len;
+        char *begin2;
+        int len2;
+        buffer_allocate_writable(&control->dispatch->write_buf, &begin2, &len2);
+        memcpy(begin2, begin, len);
+        control->dispatch->write_buf.write += len;
+
     }
 
 
