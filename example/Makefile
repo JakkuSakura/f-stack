@@ -12,10 +12,9 @@ LIBS+= -L${FF_PATH}/lib -Wl,--whole-archive,-lfstack,--no-whole-archive
 LIBS+= -L${FF_DPDK}/lib -Wl,--whole-archive,-ldpdk,--no-whole-archive
 LIBS+= -Wl,--no-whole-archive -lrt -lm -ldl -lcrypto -pthread -lnuma
 
-TARGET="helloworld"
-all:
-	cc -O -gdwarf-2  -I../lib -o ${TARGET} main.c ${LIBS}
-	cc -O -gdwarf-2  -I../lib -o ${TARGET}_control main_control.c ${LIBS}
+TARGET="main"
+all: fstack_daemon.o buffer.o mutex_stack.o
+	cc -O -gdwarf-2  -I../lib -o ${TARGET}_control main_control.c fstack_daemon.o buffer.o mutex_stack.o ${LIBS}
 
 .PHONY: clean
 clean:
