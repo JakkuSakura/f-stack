@@ -257,13 +257,13 @@ igbuio_pci_enable_interrupts(struct rte_uio_pci_dev *udev)
 #endif
 	/* falls through - to INTX */
 	case RTE_INTR_MODE_LEGACY:
-		if (pci_intx_mask_supported(udev->pdev)) {
+//		if (pci_intx_mask_supported(udev->pdev)) {
 			dev_dbg(&udev->pdev->dev, "using INTX");
 			udev->info.irq_flags = IRQF_SHARED | IRQF_NO_THREAD;
 			udev->info.irq = udev->pdev->irq;
 			udev->mode = RTE_INTR_MODE_LEGACY;
 			break;
-		}
+//		}
 		dev_notice(&udev->pdev->dev, "PCI INTX mask not supported\n");
 	/* falls through - to no IRQ */
 	case RTE_INTR_MODE_NONE:

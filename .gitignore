@@ -29,3 +29,5 @@ dpdk/.ci/
 dpdk/.travis.yml
 .vscode/
 .code.yml
+
+.idea

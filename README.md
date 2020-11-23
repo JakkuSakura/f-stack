@@ -41,7 +41,7 @@ Currently, besides authorized DNS server of DNSPod, there are various products i
     cd f-stack
     # Compile DPDK
     cd dpdk/usertools
-    ./dpdk-setup.sh # compile with x86_64-native-linuxapp-gcc
+    ./dpdk-setup.sh # 38: compile with x86_64-native-linuxapp-gcc
 
     # Set hugepage
     # single-node system
