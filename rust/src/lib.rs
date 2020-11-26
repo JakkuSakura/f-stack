@@ -1,17 +1,18 @@
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
-
 mod bindings;
+mod tools;
+
 
 #[cfg(test)]
 mod tests {
-    use crate::bindings::fstack_run;
-
+    use crate::bindings::{fstack_run, fstack_init};
+    use crate::tools::CArgs;
     #[test]
     fn test_fstack() {
         unsafe {
-            fstack_run(None);
+            let args = CArgs::from(&["/home/jack/f-stack/rust/test"]);
+            let (argc, argv) = args.get();
+            fstack_init(argc, argv);
+            // fstack_run(None);
         }
     }
 }

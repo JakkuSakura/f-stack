@@ -150,6 +150,12 @@ static int initialized = 0;
 
 void fstack_init(int argc, char *argv[]) {
     if (initialized == 0) {
+        printf("args: ");
+        for (int i = 0; i < argc; ++i) {
+            printf("%s ", argv[i]);
+        }
+        printf("\n");
+
         ff_init(argc, argv);
         assert((epfd = ff_epoll_create(0)) > 0);
         mutex_stack_init(&controls, 1000, sizeof(struct control_t));
