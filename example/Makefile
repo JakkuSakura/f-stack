@@ -1,21 +1,21 @@
-TOPDIR=..
-
-ifeq ($(FF_PATH),)
-	FF_PATH=${TOPDIR}
-endif
-
-ifeq ($(FF_DPDK),)
-	FF_DPDK=${TOPDIR}/dpdk/x86_64-native-linuxapp-gcc
-endif
-
-LIBS+= -L${FF_PATH}/lib -Wl,--whole-archive,-lfstack,--no-whole-archive
-LIBS+= -L${FF_DPDK}/lib -Wl,--whole-archive,-ldpdk,--no-whole-archive
+LIBS+= -Wl,--whole-archive,-lfstack,--no-whole-archive
+LIBS+= -Wl,--whole-archive,-ldpdk,--no-whole-archive
 LIBS+= -Wl,--no-whole-archive -lrt -lm -ldl -lcrypto -pthread -lnuma
 
-TARGET="main"
-all: fstack_daemon.o buffer.o mutex_stack.o
-	cc -O -gdwarf-2  -I../lib -o ${TARGET}_control main_control.c fstack_daemon.o buffer.o mutex_stack.o ${LIBS}
+OBJS := fstack_daemon.o buffer.o mutex_stack.o
+
+all: main_control libfstack_daemon.a
+
+main_control: libfstack_daemon.a
+	cc -O -o main_control main_control.c ${LIBS} -lfstack_daemon -L.
+
+libfstack_daemon.a: $(OBJS)
+	ar rcs libfstack_daemon.a ${OBJS}
+
+%.o: %.c
+	cc -MD -MP -fPIC $< -c -o $@
 
 .PHONY: clean
 clean:
-	rm -f *.o ${TARGET} ${TARGET} ${TARGET}_control
+	rm -f *.o main_control *.a
+

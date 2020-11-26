@@ -1,0 +1,3 @@
+[submodule "PrimitiveModules"]
+	path = PrimitiveModules
+	url = https://github.com/HappyProCoding/PrimitiveModules

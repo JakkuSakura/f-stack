@@ -13,6 +13,7 @@
 #include <sys/time.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <pthread.h>
 
 void *worker(void *_) {
     printf("Creating connection\n");

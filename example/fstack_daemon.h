@@ -4,18 +4,7 @@
 
 #ifndef F_STACK_FSTACK_DAEMON_H
 #define F_STACK_FSTACK_DAEMON_H
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
-#include <strings.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
-#include <errno.h>
-#include <assert.h>
-#include <sys/ioctl.h>
-#include <sys/time.h>
 #include <netdb.h>
 #include <unistd.h>
 #include "buffer.h"

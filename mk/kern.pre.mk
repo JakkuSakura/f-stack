@@ -47,7 +47,7 @@ NOSTDINC= -nostdinc
 
 INCLUDES= -undef -imacros ${IMACROS_FILE} ${NOSTDINC} ${INCLMAGIC} -I. -I$S
 
-CFLAGS=	${COPTFLAGS} ${C_DIALECT} ${DEBUG} ${CWARNFLAGS}
+CFLAGS=	${COPTFLAGS} ${C_DIALECT} ${DEBUG} ${CWARNFLAGS} -fPIC
 KERNEL_CFLAGS= -D__FreeBSD__ -D_KERNEL -DHAVE_KERNEL_OPTION_HEADERS -include opt_global.h -fno-builtin
 ifneq (${COMPILER_TYPE},clang)
 CFLAGS+= -fno-common -finline-limit=${INLINE_LIMIT}
