@@ -9,7 +9,8 @@ edition = "2018"
 [dependencies]
 libc = "0.2.0"
 devourer = { path = "../PrimitiveModules/devourer" }
-
+rust-dpdk-sys = { git = "https://github.com/ANLAB-KAIST/rust-dpdk.git" }
+# export RTE_TARGET="x86_64-native-linuxapp-gcc"
 [build-dependencies]
-bindgen = "0.53.1"
+bindgen = "0.47.3" # needed by rust-dpdk-sys
 cc = "*"

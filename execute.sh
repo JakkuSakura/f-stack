@@ -61,3 +61,5 @@ cd $FF_PATH/lib && make clean && make && make install
 # shellcheck disable=SC2164
 cd $FF_PATH/example && make clean && make
 cd $FF_PATH && example/helloworld
+
+# see https://github.com/ANLAB-KAIST/rust-dpdk/blob/master/Dockerfile for dpdk for rust

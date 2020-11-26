@@ -7,6 +7,7 @@ pub struct CArgs {
     c_args: Vec<*const c_char>,
 }
 
+
 impl CArgs {
     pub fn new() -> CArgs {
         // create a vector of zero terminated strings
