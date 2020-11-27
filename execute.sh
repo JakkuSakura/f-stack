@@ -2,7 +2,7 @@
 export FF_PATH=/home/jack/f-stack
 # clone F-Stack
 mkdir -p $FF_PATH
-git clone https://github.com/F-Stack/f-stack.git $FF_PATH
+git clone https://github.com/qiujiangkun/f-stack $FF_PATH
 
 # Install libnuma-dev
 #yum -y install numactl-devel          # on Centos

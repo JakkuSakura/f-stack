@@ -6,6 +6,7 @@ use std::path::PathBuf;
 fn main() {
     println!("cargo:rustc-link-search=../example");
 
+
     let dep = vec!["fstack_daemon", "fstack", "dpdk", "rt", "dl", "crypto", "numa"];
     for d in dep {
         println!("cargo:rustc-link-lib={}", d);
@@ -37,7 +38,7 @@ fn main() {
 
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
-        // .parse_callbacks(Box::new(bindgen::CargoCallbacks)) for 0.52+
+        // .parse_callbacks(Box::new(bindgen::CargoCallbacks)) // for 0.52+
 
         // Finish the builder and generate the bindings.
         .generate()

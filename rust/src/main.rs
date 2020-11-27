@@ -1,8 +1,8 @@
-mod bindings;
-
 fn main() {
     unsafe {
-        bindings::fstack_run(None);
+        let args = fstack::tools::CArgs::from(&["/home/jack/f-stack/rust/test"]);
+        let (argc, argv) = args.get();
+        fstack::bindings::fstack_init(argc, argv);
+        // fstack_run(None);
     }
 }
-// does not compile https://github.com/rust-lang/rust/issues/79446

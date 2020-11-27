@@ -164,6 +164,5 @@ void fstack_init(int argc, char *argv[]) {
 }
 
 void fstack_run(void (*user_poll)()) {
-    fstack_init(0, NULL);
     ff_run(daemon_loop, user_poll);
 }
